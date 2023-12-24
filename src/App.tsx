@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import LoadingSpinner from "./components/LoadingSpinner";
-import CharListItem from "./components/CharListItem";
+
+import CharList from "./components/CharList";
 import CharSearchInput from "./components/CharSearchInput";
 
 interface Char {
@@ -52,43 +50,30 @@ function App() {
   const removeCharHandler = (character) => {
     setSelectedChars(selectedChars.filter((char) => char.id !== character.id));
   };
+  const backspaceHandler = (e) => {
+    if (e.key === "Backspace" && e.target.value === "") {
+      const lastChar = selectedChars[selectedChars.length - 1];
+      setSelectedChars(selectedChars.filter((char) => char.id !== lastChar.id));
+    }
+  };
+
   return (
     <main className="h-screen w-screen flex flex-col items-center ">
-      <section className="w-[90%] sm:w-[35%] relative shadow-md mt-20 rounded-lg border border-slate-300 flex flex-wrap gap-1 p-1 pr-8">
-        {selectedChars.map((char) => (
-          <div className="bg-slate-200 rounded px-1 w-fit h-fit text-nowrap	text-gray-600 font-medium flex">
-            <span>{char.name}</span>
-            <button onClick={removeCharHandler.bind(this, char)}>
-              <XMarkIcon className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-        ))}
-        <input
-          onChange={inputChangeHandler}
-          type="text"
-          className=" focus:outline-none rounded-lg"
-        />
-        <ChevronDownIcon className="w-6 h-6 absolute right-2 top-1/2 -translate-y-1/2 text-gray-600" />
-      </section>{" "}
+      <CharSearchInput
+        selectedChars={selectedChars}
+        removeCharHandler={removeCharHandler}
+        inputChangeHandler={inputChangeHandler}
+        backspaceHandler={backspaceHandler}
+      />
       {charList.length !== 0 && (
-        <section className="border border-slate-300 mt-3 w-[90%] sm:w-[35%] max-h-96 overflow-y-scroll rounded-lg shadow-md">
-          {loading ? (
-            <LoadingSpinner />
-          ) : (
-            <ul className="flex flex-col">
-              {charList.map((char) => (
-                <CharListItem
-                  removeCharHandler={removeCharHandler}
-                  searchQuery={searchQuery}
-                  key={char.id}
-                  character={char}
-                  setSelectedChars={setSelectedChars}
-                  selectedChars={selectedChars}
-                />
-              ))}
-            </ul>
-          )}
-        </section>
+        <CharList
+          removeCharHandler={removeCharHandler}
+          searchQuery={searchQuery}
+          charList={charList}
+          loading={loading}
+          selectedChars={selectedChars}
+          setSelectedChars={setSelectedChars}
+        />
       )}
     </main>
   );
