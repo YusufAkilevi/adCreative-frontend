@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import CharList from "./components/CharList";
 import CharSearchInput from "./components/CharSearchInput";
+import CharacterContext from "./context/character-context";
 
 interface Char {
   id: number;
@@ -11,15 +12,16 @@ interface Char {
 }
 
 function App() {
+  const characterCtx = useContext(CharacterContext);
+
   const [charList, setCharList] = useState<Char[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedChars, setSelectedChars] = useState([]);
-  const [searchQuery, setSearchQuery] = useState<string>();
+  const [error, setError] = useState({ isError: false, message: "" });
 
   const inputChangeHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const query: string = e.target.value;
 
-    setSearchQuery(query);
+    characterCtx.setSearchQuery(query);
 
     if (query.length !== 0) {
       try {
@@ -30,6 +32,9 @@ function App() {
 
         const data = await res.json();
 
+        if (data.error) {
+          throw new Error();
+        }
         const modifiedData: Char[] = data.results.map((char) => ({
           id: char.id,
           name: char.name,
@@ -39,41 +44,27 @@ function App() {
 
         setCharList(modifiedData);
         setLoading(false);
+        setError({ isError: false, message: "" });
       } catch (error) {
+        setError({
+          isError: true,
+          message: `Character "${query}" could not be found!`,
+        });
         setLoading(false);
         setCharList([]);
       }
     } else {
+      setError({ isError: false, message: "" });
       setCharList([]);
-    }
-  };
-  const removeCharHandler = (character) => {
-    setSelectedChars(selectedChars.filter((char) => char.id !== character.id));
-  };
-  const backspaceHandler = (e) => {
-    if (e.key === "Backspace" && e.target.value === "") {
-      const lastChar = selectedChars[selectedChars.length - 1];
-      setSelectedChars(selectedChars.filter((char) => char.id !== lastChar.id));
     }
   };
 
   return (
     <main className="h-screen w-screen flex flex-col items-center ">
-      <CharSearchInput
-        selectedChars={selectedChars}
-        removeCharHandler={removeCharHandler}
-        inputChangeHandler={inputChangeHandler}
-        backspaceHandler={backspaceHandler}
-      />
-      {charList.length !== 0 && (
-        <CharList
-          removeCharHandler={removeCharHandler}
-          searchQuery={searchQuery}
-          charList={charList}
-          loading={loading}
-          selectedChars={selectedChars}
-          setSelectedChars={setSelectedChars}
-        />
+      <CharSearchInput inputChangeHandler={inputChangeHandler} />
+      {error.isError && <p className="mt-8 font-semibold">{error.message}</p>}
+      {charList.length !== 0 && !error.isError && (
+        <CharList charList={charList} loading={loading} />
       )}
     </main>
   );

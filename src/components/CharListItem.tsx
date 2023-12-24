@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+
+import CharacterContext from "../context/character-context";
 
 const firstLetterCapital = (text: string) => {
   return text
@@ -23,54 +25,41 @@ const makeQueryBold = (charName: string, searchQuery: string) => {
   return result;
 };
 
-const CharListItem = ({
-  character,
-  searchQuery,
-  setSelectedChars,
-  selectedChars,
-  removeCharHandler,
-}) => {
+const CharListItem = ({ character }) => {
+  const characterCtx = useContext(CharacterContext);
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if (!selectedChars.includes(character)) setChecked(false);
-  }, [character, selectedChars]);
+    if (!characterCtx.selectedChars.includes(character)) setChecked(false);
+    else setChecked(true);
+  }, [character, characterCtx.selectedChars]);
 
-  const selectCharacter = () => {
-    if (!selectedChars.includes(character)) {
-      setSelectedChars((prevState) => [...prevState, character]);
-      checkboxToggleHandler();
-    } else {
-      setSelectedChars(
-        selectedChars.filter((char) => char.id !== character.id)
-      );
-      checkboxToggleHandler();
-    }
-  };
   const checkboxToggleHandler = () => {
     setChecked((prevState) => !prevState);
   };
+  const clickHandler = (e) => {
+    characterCtx.toggleCharacter(character);
+    checkboxToggleHandler();
+  };
   const keyDownHandler = (e) => {
     if (e.key === "Enter") {
-      selectCharacter();
+      characterCtx.toggleCharacter(character);
     }
   };
   return (
     <li
-      onClick={selectCharacter}
+      onClick={clickHandler}
       className="border-b border-gray-300 py-2 px-3 cursor-pointer flex gap-3"
     >
       <input
         type="checkbox"
+        id={character.id}
         className="cursor-pointer"
         readOnly
         onKeyDown={keyDownHandler}
         checked={checked}
       />
-      <label
-        htmlFor={character.id}
-        className="flex items-center gap-2 w-full cursor-pointer"
-      >
+      <div className="flex items-center gap-2 w-full cursor-pointer">
         <div className="w-1/6 lg:w-[12%]">
           <img
             className="rounded-lg w-full"
@@ -80,11 +69,13 @@ const CharListItem = ({
         </div>
         <div className="flex flex-col w-5/6">
           <span className="text-gray-700">
-            {makeQueryBold(character.name, searchQuery).map((letter) => (
-              <span key={`${letter}${character.id * Math.random()}`}>
-                {letter}
-              </span>
-            ))}
+            {makeQueryBold(character.name, characterCtx.searchQuery).map(
+              (letter) => (
+                <span key={`${letter}${character.id * Math.random()}`}>
+                  {letter}
+                </span>
+              )
+            )}
           </span>
           <span className="text-sm text-gray-500">
             {`${character.episodesPlayIn} ${
@@ -92,7 +83,7 @@ const CharListItem = ({
             }`}
           </span>
         </div>
-      </label>
+      </div>
     </li>
   );
 };
