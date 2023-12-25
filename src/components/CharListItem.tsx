@@ -1,16 +1,33 @@
-import { useEffect, useState, useContext } from "react";
-
+import React, { useEffect, useState, useContext, KeyboardEvent } from "react";
 import CharacterContext from "../context/character-context";
 
-const firstLetterCapital = (text: string) => {
+interface Char {
+  id: number;
+  name: string;
+  episodesPlayIn: number;
+  image: string;
+}
+
+interface CharListItemProps {
+  character: Char;
+  i: number;
+  selectedIndex: number;
+  setSelectedIndex: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const firstLetterCapital = (text: string): string => {
   return text
     .split(" ")
     .map((word: string) => word.slice(0, 1).toUpperCase() + word.slice(1))
     .join(" ");
 };
-const makeQueryBold = (charName: string, searchQuery: string) => {
+
+const makeQueryBold = (
+  charName: string,
+  searchQuery: string
+): JSX.Element[] => {
   const startIdx = charName.toLowerCase().indexOf(searchQuery);
-  const result = charName.split("");
+  const result: (string | React.ReactElement)[] = charName.split("");
   const searchQueryCap = firstLetterCapital(searchQuery);
   const boldQuery = (
     <strong>
@@ -22,41 +39,62 @@ const makeQueryBold = (charName: string, searchQuery: string) => {
 
   const searchQueryLength = searchQuery.length;
   result.splice(startIdx, searchQueryLength, boldQuery);
-  return result;
+
+  return result.map((letter, index) => (
+    <span key={`${letter}${index}`}>{letter}</span>
+  ));
 };
 
-const CharListItem = ({ character }) => {
+const CharListItem: React.FC<CharListItemProps> = ({
+  character,
+  i,
+  selectedIndex,
+  setSelectedIndex,
+}) => {
   const characterCtx = useContext(CharacterContext);
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!characterCtx.selectedChars.includes(character)) setChecked(false);
-    else setChecked(true);
+    setChecked(characterCtx.selectedChars.includes(character));
   }, [character, characterCtx.selectedChars]);
 
   const checkboxToggleHandler = () => {
     setChecked((prevState) => !prevState);
   };
-  const clickHandler = (e) => {
+
+  const clickHandler = () => {
     characterCtx.toggleCharacter(character);
     checkboxToggleHandler();
+    setSelectedIndex(i);
   };
-  const keyDownHandler = (e) => {
+
+  const keyDownCheckboxHandler = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       characterCtx.toggleCharacter(character);
     }
   };
+
+  const keyDownListHandler = (e: KeyboardEvent<HTMLLIElement>) => {
+    if (e.key === "Enter") {
+      clickHandler();
+    }
+  };
+
   return (
     <li
+      role="button"
+      tabIndex={0}
+      aria-pressed={i === selectedIndex}
       onClick={clickHandler}
+      onKeyDown={keyDownListHandler}
       className="border-b border-gray-300 py-2 px-3 cursor-pointer flex gap-3"
     >
       <input
         type="checkbox"
-        id={character.id}
+        id={character.id.toString()}
         className="cursor-pointer"
         readOnly
-        onKeyDown={keyDownHandler}
+        onKeyDown={keyDownCheckboxHandler}
         checked={checked}
       />
       <div className="flex items-center gap-2 w-full cursor-pointer">
@@ -69,13 +107,7 @@ const CharListItem = ({ character }) => {
         </div>
         <div className="flex flex-col w-5/6">
           <span className="text-gray-700">
-            {makeQueryBold(character.name, characterCtx.searchQuery).map(
-              (letter) => (
-                <span key={`${letter}${character.id * Math.random()}`}>
-                  {letter}
-                </span>
-              )
-            )}
+            {makeQueryBold(character.name, characterCtx.searchQuery)}
           </span>
           <span className="text-sm text-gray-500">
             {`${character.episodesPlayIn} ${
@@ -87,4 +119,5 @@ const CharListItem = ({ character }) => {
     </li>
   );
 };
+
 export default CharListItem;

@@ -1,6 +1,21 @@
-import { createContext, useState } from "react";
+import React, { createContext, useState, ReactNode } from "react";
 
-const CharacterContext = createContext({
+interface Character {
+  id: number;
+  name: string;
+  episodesPlayIn: number;
+  image: string;
+}
+
+interface CharacterContextProps {
+  selectedChars: Character[];
+  toggleCharacter: (character: Character) => void;
+  removeLastSelectedChar: () => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+}
+
+const CharacterContext = createContext<CharacterContextProps>({
   selectedChars: [],
   toggleCharacter: () => {},
   removeLastSelectedChar: () => {},
@@ -8,31 +23,43 @@ const CharacterContext = createContext({
   setSearchQuery: () => {},
 });
 
-export const CharacterContextProvider = ({ children }) => {
-  const [selectedChars, setSelectedChars] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const toggleCharacter = (character) => {
-    if (!selectedChars.includes(character)) {
+interface CharacterContextProviderProps {
+  children: ReactNode;
+}
+
+export const CharacterContextProvider: React.FC<
+  CharacterContextProviderProps
+> = ({ children }) => {
+  const [selectedChars, setSelectedChars] = useState<Character[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const toggleCharacter = (character: Character) => {
+    if (!selectedChars.some((char) => char.id === character.id)) {
       setSelectedChars((prevState) => [...prevState, character]);
     } else {
-      setSelectedChars(
-        selectedChars.filter((char) => char.id !== character.id)
+      setSelectedChars((prevState) =>
+        prevState.filter((char) => char.id !== character.id)
       );
     }
   };
+
   const removeLastSelectedChar = () => {
-    const lastChar = selectedChars[selectedChars.length - 1];
-    setSelectedChars(selectedChars.filter((char) => char.id !== lastChar.id));
+    if (selectedChars.length > 0) {
+      setSelectedChars((prevState) => {
+        const lastChar = prevState[prevState.length - 1];
+        return prevState.filter((char) => char.id !== lastChar.id);
+      });
+    }
   };
 
   return (
     <CharacterContext.Provider
       value={{
-        selectedChars: selectedChars,
-        toggleCharacter: toggleCharacter,
-        removeLastSelectedChar: removeLastSelectedChar,
-        searchQuery: searchQuery,
-        setSearchQuery: setSearchQuery,
+        selectedChars,
+        toggleCharacter,
+        removeLastSelectedChar,
+        searchQuery,
+        setSearchQuery,
       }}
     >
       {children}
