@@ -23,42 +23,7 @@ This project is a React.js implementation of a multi-select autocomplete compone
 - Exception handling and error states in the UI
 - Clean and readable code architecture
 
-## Technologies
-
-- React.js
-- Typescript
-- Vite.js
-- Tailwind CSS
-
-### Links
-
-- Solution URL: [https://github.com/YusufAkilevi/adCreative-frontend.git](https://github.com/YusufAkilevi/adCreative-frontend.git)
-- Live Site URL: [https://multi-page-form-yakilevs.netlify.app/](https://multi-page-form-yakilevs.netlify.app/)
-
-## Installation
-
-### Clone the repository
-
-```bash
-git clone https://github.com/YusufAkilevi/adCreative-frontend.git
-cd adCreative-frontend
-```
-
-### Install dependencies
-
-```
-npm install
-```
-
-### Run the development server
-
-```
-npm run dev
-```
-
-Visit http://localhost:5173 in your browser.
-
-# Project Features
+## Project Features
 
 This project incorporates the following key features:
 
@@ -88,3 +53,38 @@ This project incorporates the following key features:
 
 7. **Exception Handling and Error States in the UI**
    - The application implements robust exception handling to gracefully manage potential errors in API requests. Error states are displayed in the UI, providing users with feedback on failed operations.
+
+## Technologies
+
+- React.js
+- Typescript
+- Vite.js
+- Tailwind CSS
+
+### Links
+
+- Solution URL: [https://github.com/YusufAkilevi/adCreative-frontend.git](https://github.com/YusufAkilevi/adCreative-frontend.git)
+- Live Site URL: [https://ad-creative-frontend.vercel.app/](https://ad-creative-frontend.vercel.app/)
+
+## Installation
+
+### Clone the repository
+
+```bash
+git clone https://github.com/YusufAkilevi/adCreative-frontend.git
+cd adCreative-frontend
+```
+
+### Install dependencies
+
+```
+npm install
+```
+
+### Run the development server
+
+```
+npm run dev
+```
+
+Visit http://localhost:5173 in your browser.
