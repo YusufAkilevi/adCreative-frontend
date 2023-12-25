@@ -26,7 +26,8 @@ const makeQueryBold = (
   charName: string,
   searchQuery: string
 ): JSX.Element[] => {
-  const startIdx = charName.toLowerCase().indexOf(searchQuery);
+  const startIdx = charName.toLowerCase().indexOf(searchQuery.toLowerCase());
+  console.log(startIdx);
   const result: (string | React.ReactElement)[] = charName.split("");
   const searchQueryCap = firstLetterCapital(searchQuery);
   const boldQuery = (
@@ -39,7 +40,7 @@ const makeQueryBold = (
 
   const searchQueryLength = searchQuery.length;
   result.splice(startIdx, searchQueryLength, boldQuery);
-
+  console.log(result);
   return result.map((letter, index) => (
     <span key={`${letter}${index}`}>{letter}</span>
   ));
